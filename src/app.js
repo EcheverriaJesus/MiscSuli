@@ -1,19 +1,30 @@
-const { BrowserWindow } = require('electron')
+const { app, ipcMain } = require('electron')
+const { createWindow } = require('./utils/windowUtils')
+require('electron-reload')(__dirname)
 
-let window
+app.whenReady().then(createWindow)
 
-function CreateWindow () {
-    window = new BrowserWindow({
-       /*  width: 800,
-        height: 600, */
-        webPreferences: {
-            nodeIntegration: true
-        }
+let mainWindow
+
+app.on('ready', () => {
+    const mainWindow = createWindow({
+        width: 8000,
+        height: 600,
+        maximize: true,
+        loadFile: 'src/views/Dashboard.html'
     })
-    window.maximize()
-    window.loadFile('src/views/Dashboard.html')
-}
 
-module.exports ={
-    CreateWindow
-}
+    ipcMain.on('llamarVentana', () => {
+        createWindow({
+            width: 600,
+            height: 500,
+            maximize: true,
+            loadFile: 'src/views/Dashboard.html'
+        })
+    })
+
+    mainWindow.on('closed', () => {
+        app.quit()
+    })
+
+})
